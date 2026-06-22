@@ -398,9 +398,17 @@ def commission_pay(commission_id):
 @app.route("/portal")
 @role_required("agent")
 def portal_dashboard():
-    agent_id = session.get("agent_id")
-    stats = db.get_dashboard_stats(agent_id=agent_id)
+        agent_id = session.get("agent_id")
+    if agent_id:
+        stats = db.get_dashboard_stats(agent_id=agent_id)
+    else:
+        stats = {
+            "my_leads": 0, "my_new_leads": 0, "my_completed": 0,
+            "my_pending_commissions": 0, "my_approved_commissions": 0,
+            "my_total_earned": 0,
+        }
     agent = db.get_agent(agent_id) if agent_id else None
+
     return render_template("portal/dashboard.html", stats=stats, agent=agent)
 
 
