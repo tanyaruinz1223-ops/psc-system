@@ -16,27 +16,28 @@
 
 <div class="row g-3 mb-4">
   <div class="col-md-4"><div class="stat-card" style="border-top-color:#2563eb">
-    <div class="stat-value" style="color:#2563eb">{{ stats.my_leads }}</div>
+    <div class="stat-value" style="color:#2563eb">{{ stats.my_leads|default(0) }}</div>
     <div class="stat-label">My Total Leads</div>
   </div></div>
   <div class="col-md-4"><div class="stat-card" style="border-top-color:#f59e0b">
-    <div class="stat-value" style="color:#f59e0b">{{ stats.my_new_leads }}</div>
+    <div class="stat-value" style="color:#f59e0b">{{ stats.my_new_leads|default(0) }}</div>
     <div class="stat-label">New / Pending Leads</div>
   </div></div>
   <div class="col-md-4"><div class="stat-card" style="border-top-color:#16a34a">
-    <div class="stat-value" style="color:#16a34a">{{ stats.my_completed }}</div>
+    <div class="stat-value" style="color:#16a34a">{{ stats.my_completed|default(0) }}</div>
     <div class="stat-label">Completed Leads</div>
   </div></div>
   <div class="col-md-4"><div class="stat-card" style="border-top-color:#ea580c">
-    <div class="stat-value" style="color:#ea580c">{{ stats.my_pending_commissions }}</div>
+    <div class="stat-value" style="color:#ea580c">{{ stats.my_pending_commissions|default(0) }}</div>
     <div class="stat-label">Pending Commissions</div>
   </div></div>
   <div class="col-md-4"><div class="stat-card" style="border-top-color:#7c3aed">
-    <div class="stat-value" style="color:#7c3aed">{{ stats.my_approved_commissions }}</div>
+    <div class="stat-value" style="color:#7c3aed">{{ stats.my_approved_commissions|default(0) }}</div>
     <div class="stat-label">Approved Commissions</div>
   </div></div>
   <div class="col-md-4"><div class="stat-card" style="border-top-color:#0f766e">
-    <div class="stat-value" style="color:#0f766e">${{ "%.2f"|format(stats.my_total_earned) }}</div>
+    <div class="stat-value" style="color:#0f766e">${{ "%.2f"|format(stats.my_total_earned|default(0)) }}
+}</div>
     <div class="stat-label">Total Earned</div>
   </div></div>
 </div>
