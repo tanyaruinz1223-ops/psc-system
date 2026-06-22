@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}{{ lead.lead_number }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('leads') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">{{ lead.lead_number }}</h2>
+    <span class="badge-status badge-{{ lead.status.replace(' ','-') }}">{{ lead.status }}</span>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="detail-card mb-4">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person-fill me-2"></i>Agent</h6>
+      <div class="detail-field">
+        <span class="detail-label">Name</span>
+        <span class="detail-value">
+          <a href="{{ url_for('agent_detail', agent_id=lead.agent_id) }}">{{ lead.agent_name }}</a>
+        </span>
+      </div>
+      <div class="detail-field">
+        <span class="detail-label">Agent Number</span>
+        <span class="detail-value"><code>{{ lead.agent_number }}</code></span>
+      </div>
+      {% if lead.agent_mobile %}
+      <div class="detail-field">
+        <span class="detail-label">Mobile</span>
+        <span class="detail-value">{{ lead.agent_mobile }}</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="detail-card">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-building me-2"></i>Buyer</h6>
+      <div class="detail-field">
+        <span class="detail-label">Name</span>
+        <span class="detail-value">{{ lead.buyer_name }}</span>
+      </div>
+      {% if lead.company_name %}
+      <div class="detail-field">
+        <span class="detail-label">Company</span>
+        <span class="detail-value">{{ lead.company_name }}</span>
+      </div>
+      {% endif %}
+      {% if lead.buyer_contact %}
+      <div class="detail-field">
+        <span class="detail-label">Contact</span>
+        <span class="detail-value">{{ lead.buyer_contact }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="detail-card mb-4">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-box-seam me-2"></i>Procurement Details</h6>
+      {% for label, value in [
+        ('Product', lead.product_description),
+        ('Quantity', lead.quantity),
+        ('Specifications', lead.specifications),
+        ('Delivery Requirements', lead.delivery_requirements),
+        ('Delivery Location', lead.delivery_location),
+        ('Budget', lead.budget),
+        ('Timeframe', lead.timeframe),
+        ('Submitted', lead.submitted_at[:10] if lead.submitted_at else None),
+        ('Notes', lead.notes),
+      ] %}
+      {% if value %}
+      <div class="detail-field">
+        <span class="detail-label">{{ label }}</span>
+        <span class="detail-value">{{ value }}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Status update -->
+    <div class="detail-card">
+      <h6 class="fw-bold mb-3"><i class="bi bi-arrow-repeat me-2"></i>Update Status</h6>
+      <form method="POST" action="{{ url_for('lead_update_status', lead_id=lead.id) }}" class="d-flex gap-2">
+        <select name="status" class="form-select">
+          {% for s in statuses %}
+          <option value="{{ s }}" {{ 'selected' if lead.status == s }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Update</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

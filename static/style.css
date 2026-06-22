@@ -1,0 +1,93 @@
+:root {
+  --sidebar-bg: #0f172a;
+  --sidebar-hover: #1e293b;
+  --accent: #3b82f6;
+  --accent-dark: #1d4ed8;
+}
+body { background: #f1f5f9; font-family: 'Segoe UI', sans-serif; }
+
+.sidebar {
+  position: fixed; top: 0; left: 0; height: 100vh; width: 230px;
+  background: var(--sidebar-bg); color: white;
+  display: flex; flex-direction: column; z-index: 100; overflow-y: auto;
+}
+.sidebar-brand { padding: 28px 24px 8px; }
+.sidebar-brand h1 { font-size: 2rem; font-weight: 800; color: #60a5fa; margin: 0; }
+.sidebar-brand p { font-size: 0.72rem; color: #94a3b8; margin: 0; }
+.sidebar-divider { height: 1px; background: #1e293b; margin: 12px 16px; }
+.section-heading { font-size: 0.68rem; text-transform: uppercase; letter-spacing: .1em; color: #475569; padding: 10px 20px 4px; }
+.sidebar nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 20px; color: #cbd5e1; text-decoration: none;
+  font-size: 0.875rem; border-radius: 8px; margin: 2px 10px;
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar nav a:hover, .sidebar nav a.active {
+  background: var(--sidebar-hover); color: #60a5fa;
+}
+.role-badge {
+  font-size: .65rem; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.role-admin       { background:#1e3a5f; color:#93c5fd; }
+.role-finance     { background:#1a3a2a; color:#86efac; }
+.role-procurement { background:#3b1f5e; color:#c4b5fd; }
+.role-agent       { background:#3b2a1a; color:#fcd34d; }
+.sidebar-footer {
+  margin-top: auto; padding: 16px; border-top: 1px solid #1e293b;
+  font-size: 0.8rem; color: #64748b;
+}
+.sidebar-footer strong { color: #e2e8f0; display: block; margin-bottom: 4px; }
+.main-content { margin-left: 230px; padding: 32px; min-height: 100vh; }
+
+/* Cards */
+.stat-card {
+  background: white; border-radius: 12px; padding: 20px;
+  border-top: 4px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.07);
+}
+.stat-card .stat-value { font-size: 2rem; font-weight: 700; }
+.stat-card .stat-label { font-size: 0.82rem; color: #64748b; margin-top: 4px; }
+.table-card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.07); overflow: hidden; }
+.table-card .card-header { background: white; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; font-weight: 600; }
+.table thead th { background: #f8fafc; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: #64748b; border: none; padding: 12px 16px; }
+.table tbody td { padding: 14px 16px; vertical-align: middle; }
+.table tbody tr { cursor: pointer; transition: background 0.1s; }
+.table tbody tr:hover { background: #f8fafc; }
+
+/* Badges */
+.badge-status { padding: 4px 10px; border-radius: 20px; font-size: .75rem; font-weight: 600; display: inline-block; }
+.badge-PENDING, .badge-NEW { background: #fef3c7; color: #92400e; }
+.badge-ACTIVE, .badge-COMPLETED, .badge-APPROVED { background: #dcfce7; color: #166534; }
+.badge-REJECTED, .badge-CANCELLED { background: #fee2e2; color: #991b1b; }
+.badge-UNDER-REVIEW { background: #ede9fe; color: #5b21b6; }
+.badge-SOURCING, .badge-QUOTATION { background: #ffedd5; color: #9a3412; }
+.badge-BUYER-APPROVED, .badge-ORDER-FULFILLED { background: #dcfce7; color: #166534; }
+.badge-PAYMENT-RECEIVED { background: #dbeafe; color: #1e40af; }
+.badge-PAID { background: #dbeafe; color: #1e40af; }
+
+/* Detail */
+.detail-card { background: white; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+.detail-field { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+.detail-field:last-child { border: none; }
+.detail-label { width: 180px; min-width: 180px; font-weight: 600; color: #475569; font-size: .875rem; }
+.detail-value { color: #0f172a; font-size: .875rem; }
+.amount-banner { background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+.amount-banner .amount { font-size: 2rem; font-weight: 800; }
+
+/* Forms */
+.form-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+.form-label { font-weight: 600; font-size: .875rem; color: #374151; }
+.form-control, .form-select { border-radius: 8px; border: 1px solid #d1d5db; padding: 10px 14px; font-size: .9rem; }
+.form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+.btn-primary { background: var(--accent); border-color: var(--accent); border-radius: 8px; }
+.btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-success, .btn-danger, .btn-warning, .btn-secondary { border-radius: 8px; }
+
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.page-header h2 { font-weight: 700; font-size: 1.5rem; color: #0f172a; margin: 0; }
+
+/* Login */
+.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0f172a; }
+.login-card { background: white; border-radius: 16px; padding: 48px; width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+.login-logo { font-size: 3rem; font-weight: 800; color: #3b82f6; text-align: center; }
+.alert { border-radius: 10px; border: none; }

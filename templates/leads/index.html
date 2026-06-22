@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Leads{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-clipboard2-fill me-2 text-primary"></i>Lead Management</h2>
+  <a href="{{ url_for('lead_new') }}" class="btn btn-success">
+    <i class="bi bi-plus-lg me-1"></i>Submit New Lead
+  </a>
+</div>
+
+<ul class="nav nav-pills mb-3 flex-wrap">
+  {% for f in ['ALL','NEW','UNDER REVIEW','SOURCING','QUOTATION','BUYER APPROVED','ORDER FULFILLED','PAYMENT RECEIVED','COMPLETED','CANCELLED'] %}
+  <li class="nav-item mb-1">
+    <a class="nav-link {{ 'active' if current_filter == f }}" style="font-size:.82rem;padding:6px 12px"
+       href="{{ url_for('leads', status=f) }}">{{ f }}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+<div class="table-card">
+  <div class="card-header">{{ leads|length }} lead{{ 's' if leads|length != 1 }}</div>
+  {% if leads %}
+  <table class="table table-hover mb-0">
+    <thead>
+      <tr>
+        <th>Lead #</th>
+        <th>Buyer</th>
+        <th>Company</th>
+        <th>Agent</th>
+        <th>Product</th>
+        <th>Submitted</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for l in leads %}
+      <tr onclick="window.location='{{ url_for('lead_detail', lead_id=l.id) }}'">
+        <td><code>{{ l.lead_number }}</code></td>
+        <td class="fw-semibold">{{ l.buyer_name }}</td>
+        <td>{{ l.company_name or '—' }}</td>
+        <td>{{ l.agent_name }}</td>
+        <td>{{ l.product_description[:40] if l.product_description else '—' }}</td>
+        <td>{{ l.submitted_at[:10] if l.submitted_at else '—' }}</td>
+        <td><span class="badge-status badge-{{ l.status.replace(' ','-') }}">{{ l.status }}</span></td>
+        <td><i class="bi bi-chevron-right text-muted"></i></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-clipboard2-x" style="font-size:2rem"></i>
+    <p class="mt-2">No leads found.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

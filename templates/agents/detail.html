@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}{{ agent.full_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('agents') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">{{ agent.full_name }}</h2>
+    <span class="badge-status badge-{{ agent.status }}">{{ agent.status }}</span>
+  </div>
+  <a href="{{ url_for('agent_edit', agent_id=agent.id) }}" class="btn btn-outline-primary">
+    <i class="bi bi-pencil me-1"></i>Edit
+  </a>
+</div>
+
+{% if agent.agent_number %}
+<div class="alert alert-info py-2 mb-3">
+  <i class="bi bi-person-badge me-2"></i>
+  <strong>Agent Number:</strong> {{ agent.agent_number }} &nbsp;|&nbsp;
+  <strong>Username:</strong> {{ agent.username }}
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="detail-card h-100">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person-fill me-2"></i>Personal Information</h6>
+      {% for label, value in [
+        ('National ID / Passport', agent.national_id),
+        ('Date of Birth', agent.date_of_birth),
+        ('Mobile', agent.mobile),
+        ('Email', agent.email),
+        ('Occupation', agent.occupation),
+        ('Residential Address', agent.address),
+        ('Bank / Mobile Money', agent.bank_details),
+      ] %}
+      {% if value %}
+      <div class="detail-field">
+        <span class="detail-label">{{ label }}</span>
+        <span class="detail-value">{{ value }}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+
+      <div class="detail-field">
+        <span class="detail-label">Registered</span>
+        <span class="detail-value">{{ agent.created_at[:10] if agent.created_at else '—' }}</span>
+      </div>
+      {% if agent.approved_at %}
+      <div class="detail-field">
+        <span class="detail-label">Approved</span>
+        <span class="detail-value">{{ agent.approved_at[:10] }}</span>
+      </div>
+      {% endif %}
+      {% if agent.notes %}
+      <div class="detail-field">
+        <span class="detail-label">Notes</span>
+        <span class="detail-value">{{ agent.notes }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    {% if agent.status == 'PENDING' %}
+    <div class="detail-card mb-4" style="border-left: 4px solid #f59e0b">
+      <h6 class="fw-bold mb-3"><i class="bi bi-hourglass-split me-2 text-warning"></i>Pending Review</h6>
+      <p class="text-muted small mb-3">Review this agent's application and approve or reject it.</p>
+      <div class="d-flex gap-2">
+        <form method="POST" action="{{ url_for('agent_approve', agent_id=agent.id) }}" class="d-inline">
+          <button class="btn btn-success" onclick="return confirm('Approve this agent?')">
+            <i class="bi bi-check-lg me-1"></i>Approve Agent
+          </button>
+        </form>
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+          <i class="bi bi-x-lg me-1"></i>Reject
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Agent's Leads -->
+    <div class="detail-card">
+      <h6 class="fw-bold mb-3"><i class="bi bi-clipboard2-fill me-2 text-primary"></i>
+        Leads ({{ leads|length }})
+      </h6>
+      {% if leads %}
+      <table class="table table-sm mb-0">
+        <thead><tr><th>Lead #</th><th>Buyer</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for l in leads %}
+          <tr onclick="window.location='{{ url_for('lead_detail', lead_id=l.id) }}'" style="cursor:pointer">
+            <td><code>{{ l.lead_number }}</code></td>
+            <td>{{ l.buyer_name }}</td>
+            <td><span class="badge-status badge-{{ l.status.replace(' ','-') }}">{{ l.status }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="text-muted small mb-0">No leads submitted yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Reject Agent Application</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('agent_reject', agent_id=agent.id) }}">
+        <div class="modal-body">
+          <label class="form-label">Reason for rejection (optional)</label>
+          <input type="text" name="notes" class="form-control" placeholder="Enter reason...">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

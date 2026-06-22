@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ c.commission_ref }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('commissions') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">{{ c.commission_ref }}</h2>
+    <span class="badge-status badge-{{ c.status }}">{{ c.status }}</span>
+  </div>
+</div>
+
+<!-- Amount banner -->
+<div class="amount-banner mb-4">
+  <div class="row text-center">
+    <div class="col-md-3">
+      <div class="label">Transaction Amount</div>
+      <div class="amount">${{ "%.2f"|format(c.transaction_amount) }}</div>
+    </div>
+    <div class="col-md-3">
+      <div class="label">Commission Rate</div>
+      <div class="amount">{{ c.commission_rate }}%</div>
+    </div>
+    <div class="col-md-3">
+      <div class="label">Gross Commission</div>
+      <div class="amount">${{ "%.2f"|format(c.gross_commission) }}</div>
+    </div>
+    <div class="col-md-3">
+      <div class="label">Net Commission Payable</div>
+      <div class="amount" style="color:#86efac">${{ "%.2f"|format(c.net_commission) }}</div>
+    </div>
+  </div>
+  {% if c.deductions %}
+  <div class="text-center mt-2" style="opacity:.8;font-size:.85rem">
+    Deductions: ${{ "%.2f"|format(c.deductions) }}
+  </div>
+  {% endif %}
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="detail-card h-100">
+      <h6 class="fw-bold text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Commission Details</h6>
+      {% for label, value in [
+        ('Lead Number', c.lead_number),
+        ('Agent Name', c.agent_name),
+        ('Agent Number', c.agent_number),
+        ('Bank / Payment Info', c.bank_details),
+        ('Buyer', c.buyer_name),
+        ('Calculated On', c.calculated_at[:10] if c.calculated_at else None),
+        ('Approved On', c.approved_at[:10] if c.approved_at else None),
+        ('Paid On', c.paid_at[:10] if c.paid_at else None),
+        ('Payment Method', c.payment_method),
+        ('Notes', c.notes),
+      ] %}
+      {% if value %}
+      <div class="detail-field">
+        <span class="detail-label">{{ label }}</span>
+        <span class="detail-value">{{ value }}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <!-- Actions -->
+    {% if c.status == 'PENDING' %}
+    <div class="detail-card mb-4" style="border-left:4px solid #f59e0b">
+      <h6 class="fw-bold mb-2"><i class="bi bi-hourglass me-2 text-warning"></i>Pending Approval</h6>
+      <p class="text-muted small">Verify the commission calculation then approve for payment processing.</p>
+      <form method="POST" action="{{ url_for('commission_approve', commission_id=c.id) }}">
+        <button class="btn btn-success" onclick="return confirm('Approve this commission?')">
+          <i class="bi bi-check-lg me-1"></i>Approve Commission
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if c.status == 'APPROVED' %}
+    <div class="detail-card mb-4" style="border-left:4px solid #2563eb">
+      <h6 class="fw-bold mb-2"><i class="bi bi-bank me-2 text-primary"></i>Process Payment</h6>
+      <p class="text-muted small">Transfer <strong>${{ "%.2f"|format(c.net_commission) }}</strong> to agent and mark as paid.</p>
+      <form method="POST" action="{{ url_for('commission_pay', commission_id=c.id) }}">
+        <div class="mb-3">
+          <label class="form-label">Payment Method</label>
+          <select name="payment_method" class="form-select">
+            <option>Bank Transfer</option>
+            <option>Mobile Money</option>
+            <option>Cash</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="return confirm('Mark this commission as paid?')">
+          <i class="bi bi-check2-circle me-1"></i>Confirm Payment
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if c.status == 'PAID' %}
+    <div class="detail-card" style="border-left:4px solid #16a34a">
+      <h6 class="fw-bold text-success mb-2"><i class="bi bi-check-circle-fill me-2"></i>Commission Paid</h6>
+      <p class="text-muted small mb-0">
+        Payment of <strong>${{ "%.2f"|format(c.net_commission) }}</strong> was sent via
+        <strong>{{ c.payment_method }}</strong> on {{ c.paid_at[:10] }}.
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

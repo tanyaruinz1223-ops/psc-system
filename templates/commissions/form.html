@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}New Commission{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('commissions') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">Create Commission</h2>
+  </div>
+</div>
+
+<div class="form-card" style="max-width:680px">
+  <form method="POST" id="commForm">
+    <div class="mb-3">
+      <label class="form-label">Lead <span class="text-danger">*</span></label>
+      <select name="lead_id" class="form-select" required>
+        <option value="">— Select Lead —</option>
+        {% for l in leads %}
+        <option value="{{ l.id }}">{{ l.lead_number }} – {{ l.buyer_name }} (Agent: {{ l.agent_name }})</option>
+        {% endfor %}
+      </select>
+      {% if not leads %}
+      <div class="text-danger small mt-1">No leads available. Submit a lead first.</div>
+      {% endif %}
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Transaction Amount (received by PSC) <span class="text-danger">*</span></label>
+        <div class="input-group">
+          <span class="input-group-text">$</span>
+          <input type="number" name="transaction_amount" id="txAmt" class="form-control"
+                 step="0.01" min="0" required oninput="calcPreview()">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Commission Rate (%) <span class="text-danger">*</span></label>
+        <div class="input-group">
+          <input type="number" name="commission_rate" id="rate" class="form-control"
+                 step="0.01" min="0" max="100" required oninput="calcPreview()">
+          <span class="input-group-text">%</span>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Deductions</label>
+        <div class="input-group">
+          <span class="input-group-text">$</span>
+          <input type="number" name="deductions" id="ded" class="form-control"
+                 step="0.01" min="0" value="0" oninput="calcPreview()">
+        </div>
+      </div>
+      <div class="col-12">
+        <!-- Live preview -->
+        <div class="p-3 rounded-3 mt-2" style="background:#f0fdf4;display:none" id="preview">
+          <div class="row text-center">
+            <div class="col-4">
+              <div class="text-muted small">Gross Commission</div>
+              <div class="fw-bold text-success fs-5" id="grossVal">—</div>
+            </div>
+            <div class="col-4">
+              <div class="text-muted small">Deductions</div>
+              <div class="fw-bold text-danger fs-5" id="dedVal">—</div>
+            </div>
+            <div class="col-4">
+              <div class="text-muted small">Net Payable</div>
+              <div class="fw-bold text-primary fs-5" id="netVal">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <label class="form-label">Notes</label>
+        <textarea name="notes" class="form-control" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-success px-4">
+        <i class="bi bi-calculator me-1"></i>Create Commission
+      </button>
+      <a href="{{ url_for('commissions') }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function calcPreview() {
+  const amt = parseFloat(document.getElementById('txAmt').value) || 0;
+  const rate = parseFloat(document.getElementById('rate').value) || 0;
+  const ded = parseFloat(document.getElementById('ded').value) || 0;
+  const gross = amt * (rate / 100);
+  const net = gross - ded;
+  const preview = document.getElementById('preview');
+  if (amt > 0 && rate > 0) {
+    preview.style.display = 'block';
+    document.getElementById('grossVal').textContent = '$' + gross.toFixed(2);
+    document.getElementById('dedVal').textContent = '$' + ded.toFixed(2);
+    document.getElementById('netVal').textContent = '$' + net.toFixed(2);
+  }
+}
+</script>
+{% endblock %}

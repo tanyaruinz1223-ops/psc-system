@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Agents{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-person-badge-fill me-2 text-primary"></i>Agent Management</h2>
+  <a href="{{ url_for('agent_new') }}" class="btn btn-success">
+    <i class="bi bi-plus-lg me-1"></i>Register New Agent
+  </a>
+</div>
+
+<!-- Filter tabs -->
+<ul class="nav nav-pills mb-3">
+  {% for f in ['ALL','PENDING','ACTIVE','REJECTED'] %}
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if current_filter == f }}"
+       href="{{ url_for('agents', status=f) }}">{{ f }}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+<div class="table-card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>{{ agents|length }} agent{{ 's' if agents|length != 1 }}</span>
+  </div>
+  {% if agents %}
+  <table class="table table-hover mb-0">
+    <thead>
+      <tr>
+        <th>Agent Number</th>
+        <th>Full Name</th>
+        <th>Mobile</th>
+        <th>Email</th>
+        <th>Occupation</th>
+        <th>Registered</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in agents %}
+      <tr onclick="window.location='{{ url_for('agent_detail', agent_id=a.id) }}'">
+        <td><code>{{ a.agent_number or '—' }}</code></td>
+        <td class="fw-semibold">{{ a.full_name }}</td>
+        <td>{{ a.mobile or '—' }}</td>
+        <td>{{ a.email or '—' }}</td>
+        <td>{{ a.occupation or '—' }}</td>
+        <td>{{ a.created_at[:10] if a.created_at else '—' }}</td>
+        <td><span class="badge-status badge-{{ a.status }}">{{ a.status }}</span></td>
+        <td><i class="bi bi-chevron-right text-muted"></i></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-person-x" style="font-size:2rem"></i>
+    <p class="mt-2">No agents found.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

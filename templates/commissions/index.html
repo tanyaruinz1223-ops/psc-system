@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Commissions{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-cash-coin me-2 text-primary"></i>Commission Management</h2>
+  <a href="{{ url_for('commission_new') }}" class="btn btn-success">
+    <i class="bi bi-plus-lg me-1"></i>New Commission
+  </a>
+</div>
+
+<ul class="nav nav-pills mb-3">
+  {% for f in ['ALL','PENDING','APPROVED','PAID'] %}
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if current_filter == f }}"
+       href="{{ url_for('commissions', status=f) }}">{{ f }}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+<div class="table-card">
+  <div class="card-header">{{ commissions|length }} commission{{ 's' if commissions|length != 1 }}</div>
+  {% if commissions %}
+  <table class="table table-hover mb-0">
+    <thead>
+      <tr>
+        <th>Ref #</th>
+        <th>Agent</th>
+        <th>Lead #</th>
+        <th>Buyer</th>
+        <th>Transaction</th>
+        <th>Rate</th>
+        <th>Net Commission</th>
+        <th>Calculated</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in commissions %}
+      <tr onclick="window.location='{{ url_for('commission_detail', commission_id=c.id) }}'">
+        <td><code>{{ c.commission_ref }}</code></td>
+        <td class="fw-semibold">{{ c.agent_name }}</td>
+        <td><code>{{ c.lead_number }}</code></td>
+        <td>{{ c.buyer_name }}</td>
+        <td>${{ "%.2f"|format(c.transaction_amount) }}</td>
+        <td>{{ c.commission_rate }}%</td>
+        <td class="fw-bold text-success">${{ "%.2f"|format(c.net_commission) }}</td>
+        <td>{{ c.calculated_at[:10] if c.calculated_at else '—' }}</td>
+        <td><span class="badge-status badge-{{ c.status }}">{{ c.status }}</span></td>
+        <td><i class="bi bi-chevron-right text-muted"></i></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="text-center text-muted py-5">
+    <i class="bi bi-cash-stack" style="font-size:2rem"></i>
+    <p class="mt-2">No commissions found.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

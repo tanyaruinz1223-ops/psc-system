@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Submit New Lead{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{{ url_for('leads') }}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="mb-0">Submit New Lead</h2>
+  </div>
+</div>
+
+<div class="form-card" style="max-width:820px">
+  <form method="POST">
+    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person-badge me-2"></i>Agent & Buyer</h6>
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <label class="form-label">Agent <span class="text-danger">*</span></label>
+        <select name="agent_id" class="form-select" required>
+          <option value="">— Select Active Agent —</option>
+          {% for a in agents %}
+          <option value="{{ a.id }}">{{ a.full_name }} ({{ a.agent_number }})</option>
+          {% endfor %}
+        </select>
+        {% if not agents %}
+        <div class="text-danger small mt-1">No active agents. <a href="{{ url_for('agent_new') }}">Register one first.</a></div>
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Buyer <span class="text-danger">*</span></label>
+        <div class="input-group">
+          <select name="buyer_id" class="form-select" required>
+            <option value="">— Select Buyer —</option>
+            {% for b in buyers %}
+            <option value="{{ b.id }}">{{ b.name }}{% if b.company_name %} ({{ b.company_name }}){% endif %}</option>
+            {% endfor %}
+          </select>
+          <a href="{{ url_for('buyer_new') }}" class="btn btn-outline-primary" target="_blank"
+             title="Add new buyer (opens new tab)">
+            <i class="bi bi-plus-lg"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-box-seam me-2"></i>Procurement Details</h6>
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label">Product Description <span class="text-danger">*</span></label>
+        <input type="text" name="product_description" class="form-control" required
+               placeholder="e.g. Industrial Steel Rods, 20mm diameter">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Quantity</label>
+        <input type="text" name="quantity" class="form-control" placeholder="e.g. 500 units">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Specifications</label>
+        <input type="text" name="specifications" class="form-control" placeholder="e.g. Grade A, ISO 9001">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Delivery Requirements</label>
+        <input type="text" name="delivery_requirements" class="form-control" placeholder="e.g. By road, refrigerated">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Delivery Location</label>
+        <input type="text" name="delivery_location" class="form-control" placeholder="e.g. Nairobi Warehouse">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Budget</label>
+        <input type="text" name="budget" class="form-control" placeholder="e.g. KES 500,000">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Timeframe</label>
+        <input type="text" name="timeframe" class="form-control" placeholder="e.g. 2 weeks, by end of month">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Additional Notes</label>
+        <textarea name="notes" class="form-control" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-success px-4">
+        <i class="bi bi-send me-1"></i>Submit Lead
+      </button>
+      <a href="{{ url_for('leads') }}" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

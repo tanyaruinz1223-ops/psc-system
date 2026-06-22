@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h2><i class="bi bi-grid-1x2-fill me-2 text-primary"></i>Dashboard</h2>
+  <span class="text-muted" style="font-size:.85rem">{{ now }}</span>
+</div>
+
+{% set role = session.get('role') %}
+
+{% if role == 'admin' %}
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="stat-card" style="border-top-color:#f59e0b">
+    <div class="stat-value" style="color:#f59e0b">{{ stats.pending_agents }}</div>
+    <div class="stat-label">Pending Agent Applications</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="border-top-color:#16a34a">
+    <div class="stat-value" style="color:#16a34a">{{ stats.active_agents }}</div>
+    <div class="stat-label">Active Agents</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="border-top-color:#2563eb">
+    <div class="stat-value" style="color:#2563eb">{{ stats.total_leads }}</div>
+    <div class="stat-label">Total Leads</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="border-top-color:#7c3aed">
+    <div class="stat-value" style="color:#7c3aed">{{ stats.total_users }}</div>
+    <div class="stat-label">System Users</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="border-top-color:#2563eb">
+    <div class="stat-value" style="color:#2563eb">{{ stats.new_leads }}</div>
+    <div class="stat-label">New Leads</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="border-top-color:#7c3aed">
+    <div class="stat-value" style="color:#7c3aed">{{ stats.review_leads }}</div>
+    <div class="stat-label">Leads Under Review</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="border-top-color:#ea580c">
+    <div class="stat-value" style="color:#ea580c">{{ stats.pending_commissions }}</div>
+    <div class="stat-label">Pending Commissions</div>
+  </div></div>
+  <div class="col-md-3"><div class="stat-card" style="border-top-color:#0f766e">
+    <div class="stat-value" style="color:#0f766e">${{ "%.2f"|format(stats.total_paid) }}</div>
+    <div class="stat-label">Total Commission Paid</div>
+  </div></div>
+</div>
+
+{% elif role == 'finance' %}
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="stat-card" style="border-top-color:#ea580c">
+    <div class="stat-value" style="color:#ea580c">{{ stats.pending_commissions }}</div>
+    <div class="stat-label">Pending Commissions</div>
+  </div></div>
+  <div class="col-md-4"><div class="stat-card" style="border-top-color:#16a34a">
+    <div class="stat-value" style="color:#16a34a">{{ stats.approved_commissions }}</div>
+    <div class="stat-label">Approved — Ready to Pay</div>
+  </div></div>
+  <div class="col-md-4"><div class="stat-card" style="border-top-color:#0f766e">
+    <div class="stat-value" style="color:#0f766e">${{ "%.2f"|format(stats.total_paid) }}</div>
+    <div class="stat-label">Total Commission Paid</div>
+  </div></div>
+</div>
+<div class="detail-card">
+  <p class="text-muted mb-2 small">Your role allows you to review, approve, and process commission payments.</p>
+  <a href="{{ url_for('commissions') }}" class="btn btn-primary">
+    <i class="bi bi-cash-coin me-1"></i>Go to Commissions
+  </a>
+</div>
+
+{% elif role == 'procurement' %}
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="stat-card" style="border-top-color:#2563eb">
+    <div class="stat-value" style="color:#2563eb">{{ stats.new_leads }}</div>
+    <div class="stat-label">New Leads</div>
+  </div></div>
+  <div class="col-md-4"><div class="stat-card" style="border-top-color:#7c3aed">
+    <div class="stat-value" style="color:#7c3aed">{{ stats.review_leads }}</div>
+    <div class="stat-label">Leads Under Review</div>
+  </div></div>
+  <div class="col-md-4"><div class="stat-card" style="border-top-color:#475569">
+    <div class="stat-value" style="color:#475569">{{ stats.total_leads }}</div>
+    <div class="stat-label">Total Leads</div>
+  </div></div>
+</div>
+<div class="detail-card">
+  <p class="text-muted mb-2 small">Your role allows you to review and update lead statuses through the procurement process.</p>
+  <a href="{{ url_for('leads') }}" class="btn btn-primary">
+    <i class="bi bi-clipboard2-fill me-1"></i>Go to Leads
+  </a>
+</div>
+{% endif %}
+{% endblock %}
