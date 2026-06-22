@@ -398,7 +398,6 @@ def commission_pay(commission_id):
 @app.route("/portal")
 @role_required("agent")
 def portal_dashboard():
-        def portal_dashboard():
     agent_id = session.get("agent_id")
     if agent_id:
         stats = db.get_dashboard_stats(agent_id=agent_id)
