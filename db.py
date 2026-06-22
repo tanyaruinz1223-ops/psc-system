@@ -251,7 +251,28 @@ def approve_agent(agent_id):
         UPDATE agents SET status='ACTIVE', agent_number=%s, approved_at=NOW()
         WHERE id=%s
     """, (agent_number, agent_id))
-    return agent_number
+
+    # Auto-create portal login if one doesn't exist yet
+    agent = get_agent(agent_id)
+    existing = fetchone("SELECT id FROM users WHERE agent_id=%s", (agent_id,))
+    if not existing:
+        raw_username = (agent.get("email") or agent.get("mobile") or agent_number).lower().strip()
+        username = raw_username.split("@")[0].replace(" ", "")
+        # Make username unique
+        base = username
+        suffix = 1
+        while fetchone("SELECT id FROM users WHERE username=%s", (username,)):
+            username = f"{base}{suffix}"
+            suffix += 1
+        default_password = agent.get("mobile") or agent_number
+        execute("""
+            INSERT INTO users (username, password_hash, full_name, role, agent_id)
+            VALUES (%s, %s, %s, 'agent', %s)
+        """, (username, hash_password(default_password),
+              agent["full_name"], agent_id))
+        return agent_number, username, default_password
+
+    return agent_number, None, None
 
 
 def reject_agent(agent_id, notes=""):
@@ -419,7 +440,7 @@ def get_dashboard_stats(agent_id=None):
     def count(sql, params=()):
         return fetchone(sql, params)
 
-    if agent_id:
+    if agent_id is not None and agent_id:
         return {
             "my_leads": count("SELECT COUNT(*) AS cnt FROM leads WHERE agent_id=%s", (agent_id,))["cnt"],
             "my_new_leads": count("SELECT COUNT(*) AS cnt FROM leads WHERE agent_id=%s AND status='NEW'", (agent_id,))["cnt"],

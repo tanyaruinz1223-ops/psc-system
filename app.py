@@ -234,8 +234,11 @@ def agent_edit(agent_id):
 @app.route("/agents/<int:agent_id>/approve", methods=["POST"])
 @role_required("admin")
 def agent_approve(agent_id):
-    num = db.approve_agent(agent_id)
-    flash(f"Agent approved! Agent Number: {num}", "success")
+    num, username, default_password = db.approve_agent(agent_id)
+    if username:
+        flash(f"Agent approved! Number: {num} | Login: {username} | Password: {default_password} — share this with the agent.", "success")
+    else:
+        flash(f"Agent approved! Agent Number: {num} (portal login already exists)", "success")
     return redirect(url_for("agent_detail", agent_id=agent_id))
 
 
@@ -410,6 +413,7 @@ def portal_dashboard():
     agent = db.get_agent(agent_id) if agent_id else None
     return render_template("portal/dashboard.html", stats=stats, agent=agent)
 
+
 @app.route("/portal/leads")
 @role_required("agent")
 def portal_leads():
@@ -476,6 +480,57 @@ def portal_commissions():
     )
     return render_template("portal/commissions.html",
                            commissions=commission_list, current_filter=status)
+
+
+# ── Profile ────────────────────────────────────────────────────────────────────
+
+@app.route("/profile")
+@login_required
+def profile():
+    user = db.get_user(session["user_id"])
+    return render_template("profile.html", user=user)
+
+
+@app.route("/profile/name", methods=["POST"])
+@login_required
+def profile_update_name():
+    full_name = request.form.get("full_name", "").strip()
+    if full_name:
+        db.execute("UPDATE users SET full_name=%s WHERE id=%s",
+                   (full_name, session["user_id"]))
+        session["user_name"] = full_name
+        flash("Name updated successfully.", "success")
+    return redirect(url_for("profile"))
+
+
+@app.route("/profile/password", methods=["POST"])
+@login_required
+def profile_change_password():
+    current = request.form.get("current_password", "")
+    new_pw  = request.form.get("new_password", "")
+    confirm = request.form.get("confirm_password", "")
+
+    user = db.authenticate(session.get("username", ""), current)
+    # Verify current password manually
+    import hashlib
+    current_hash = hashlib.sha256(current.encode()).hexdigest()
+    db_user = db.fetchone("SELECT * FROM users WHERE id=%s AND password_hash=%s",
+                          (session["user_id"], current_hash))
+    if not db_user:
+        flash("Current password is incorrect.", "error")
+        return redirect(url_for("profile"))
+    if new_pw != confirm:
+        flash("New passwords do not match.", "error")
+        return redirect(url_for("profile"))
+    if len(new_pw) < 6:
+        flash("Password must be at least 6 characters.", "error")
+        return redirect(url_for("profile"))
+
+    new_hash = hashlib.sha256(new_pw.encode()).hexdigest()
+    db.execute("UPDATE users SET password_hash=%s WHERE id=%s",
+               (new_hash, session["user_id"]))
+    flash("Password changed successfully.", "success")
+    return redirect(url_for("profile"))
 
 
 if __name__ == "__main__":
