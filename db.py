@@ -51,6 +51,7 @@ def init_db():
             mobile TEXT,
             email TEXT,
             occupation TEXT,
+            category TEXT DEFAULT 'General Trade',
             bank_details TEXT,
             status TEXT DEFAULT 'PENDING',
             created_at TIMESTAMP DEFAULT NOW(),
@@ -58,6 +59,7 @@ def init_db():
             notes TEXT
         )
     """)
+    c.execute("ALTER TABLE agents ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'General Trade'")
 
     c.execute("""
         CREATE TABLE IF NOT EXISTS buyers (
@@ -224,10 +226,17 @@ def delete_user(user_id):
 
 # ── Agents ─────────────────────────────────────────────────────────────────────
 
-def get_all_agents(status=None):
+def get_all_agents(status=None, category=None):
+    conditions, params = [], []
     if status:
-        return fetchall("SELECT * FROM agents WHERE status=%s ORDER BY created_at DESC", (status,))
-    return fetchall("SELECT * FROM agents ORDER BY created_at DESC")
+        conditions.append("status=%s"); params.append(status)
+    if category:
+        conditions.append("category=%s"); params.append(category)
+    sql = "SELECT * FROM agents"
+    if conditions:
+        sql += " WHERE " + " AND ".join(conditions)
+    sql += " ORDER BY created_at DESC"
+    return fetchall(sql, params)
 
 
 def get_agent(agent_id):
@@ -237,11 +246,12 @@ def get_agent(agent_id):
 def create_agent(data):
     return execute_returning("""
         INSERT INTO agents (full_name, national_id, date_of_birth, address,
-            mobile, email, occupation, bank_details, notes)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id
+            mobile, email, occupation, category, bank_details, notes)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id
     """, (data["full_name"], data.get("national_id"), data.get("date_of_birth"),
           data.get("address"), data.get("mobile"), data.get("email"),
-          data.get("occupation"), data.get("bank_details"), data.get("notes")))
+          data.get("occupation"), data.get("category", "General Trade"),
+          data.get("bank_details"), data.get("notes")))
 
 
 def approve_agent(agent_id):
@@ -282,11 +292,12 @@ def reject_agent(agent_id, notes=""):
 def update_agent(agent_id, data):
     execute("""
         UPDATE agents SET full_name=%s, national_id=%s, date_of_birth=%s,
-            address=%s, mobile=%s, email=%s, occupation=%s,
+            address=%s, mobile=%s, email=%s, occupation=%s, category=%s,
             bank_details=%s, notes=%s WHERE id=%s
     """, (data["full_name"], data.get("national_id"), data.get("date_of_birth"),
           data.get("address"), data.get("mobile"), data.get("email"),
-          data.get("occupation"), data.get("bank_details"), data.get("notes"), agent_id))
+          data.get("occupation"), data.get("category", "General Trade"),
+          data.get("bank_details"), data.get("notes"), agent_id))
 
 
 def agent_self_register(data):

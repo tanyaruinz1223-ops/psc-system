@@ -182,8 +182,10 @@ def user_deactivate(user_id):
 @role_required("admin", "finance", "procurement")
 def agents():
     status = request.args.get("status", "ALL")
-    agent_list = db.get_all_agents(None if status == "ALL" else status)
-    return render_template("agents/index.html", agents=agent_list, current_filter=status)
+    category = request.args.get("category", "")
+    agent_list = db.get_all_agents(None if status == "ALL" else status, category=category or None)
+    return render_template("agents/index.html", agents=agent_list,
+                           current_filter=status, current_category=category)
 
 
 @app.route("/agents/new", methods=["GET", "POST"])
@@ -192,7 +194,7 @@ def agent_new():
     if request.method == "POST":
         data = {k: request.form.get(k, "").strip() for k in [
             "full_name", "national_id", "date_of_birth", "address",
-            "mobile", "email", "occupation", "bank_details", "notes"
+            "mobile", "email", "occupation", "category", "bank_details", "notes"
         ]}
         if not data["full_name"]:
             flash("Full Name is required.", "error")
@@ -223,7 +225,7 @@ def agent_edit(agent_id):
     if request.method == "POST":
         data = {k: request.form.get(k, "").strip() for k in [
             "full_name", "national_id", "date_of_birth", "address",
-            "mobile", "email", "occupation", "bank_details", "notes"
+            "mobile", "email", "occupation", "category", "bank_details", "notes"
         ]}
         db.update_agent(agent_id, data)
         flash("Agent updated.", "success")
