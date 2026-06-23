@@ -28,6 +28,7 @@
     <div class="detail-card h-100">
       <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person-fill me-2"></i>Personal Information</h6>
       {% for label, value in [
+        ('Category', agent.category),
         ('National ID / Passport', agent.national_id),
         ('Date of Birth', agent.date_of_birth),
         ('Mobile', agent.mobile),

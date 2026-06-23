@@ -10,14 +10,21 @@
 </div>
 
 <!-- Filter tabs -->
-<ul class="nav nav-pills mb-3">
+<div class="d-flex flex-wrap gap-2 mb-3">
   {% for f in ['ALL','PENDING','ACTIVE','REJECTED'] %}
-  <li class="nav-item">
-    <a class="nav-link {{ 'active' if current_filter == f }}"
-       href="{{ url_for('agents', status=f) }}">{{ f }}</a>
-  </li>
+  <a class="btn btn-sm {{ 'btn-primary' if current_filter == f else 'btn-outline-secondary' }}"
+     href="{{ url_for('agents', status=f, category=current_category) }}">{{ f }}</a>
   {% endfor %}
-</ul>
+  <select class="form-select form-select-sm w-auto ms-auto" onchange="window.location='{{ url_for('agents', status=current_filter) }}&category='+this.value">
+    <option value="">All Categories</option>
+    {% for cat in ['Construction & Building','Stationery & Office Supplies','IT & Electronics',
+      'Healthcare & Medical','Food & Beverages','Logistics & Transport',
+      'Industrial Equipment','Cleaning & Hygiene','Furniture & Fixtures',
+      'General Trade','Other'] %}
+    <option value="{{ cat }}" {{ 'selected' if current_category == cat }}>{{ cat }}</option>
+    {% endfor %}
+  </select>
+</div>
 
 <div class="table-card">
   <div class="card-header d-flex justify-content-between align-items-center">
@@ -29,9 +36,9 @@
       <tr>
         <th>Agent Number</th>
         <th>Full Name</th>
+        <th>Category</th>
         <th>Mobile</th>
         <th>Email</th>
-        <th>Occupation</th>
         <th>Registered</th>
         <th>Status</th>
         <th></th>
@@ -42,9 +49,9 @@
       <tr onclick="window.location='{{ url_for('agent_detail', agent_id=a.id) }}'">
         <td><code>{{ a.agent_number or '—' }}</code></td>
         <td class="fw-semibold">{{ a.full_name }}</td>
+        <td>{% if a.category %}<span class="badge-category">{{ a.category }}</span>{% else %}—{% endif %}</td>
         <td>{{ a.mobile or '—' }}</td>
         <td>{{ a.email or '—' }}</td>
-        <td>{{ a.occupation or '—' }}</td>
         <td>{{ a.created_at[:10] if a.created_at else '—' }}</td>
         <td><span class="badge-status badge-{{ a.status }}">{{ a.status }}</span></td>
         <td><i class="bi bi-chevron-right text-muted"></i></td>

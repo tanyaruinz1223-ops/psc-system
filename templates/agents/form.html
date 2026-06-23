@@ -40,6 +40,18 @@
                value="{{ agent.email if agent else '' }}">
       </div>
       <div class="col-md-6">
+        <label class="form-label">Product Category</label>
+        <select name="category" class="form-select">
+          <option value="">— Select Category —</option>
+          {% for cat in ['Construction & Building','Stationery & Office Supplies','IT & Electronics',
+            'Healthcare & Medical','Food & Beverages','Logistics & Transport',
+            'Industrial Equipment','Cleaning & Hygiene','Furniture & Fixtures',
+            'General Trade','Other'] %}
+          <option value="{{ cat }}" {{ 'selected' if agent and agent.category == cat }}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
         <label class="form-label">Occupation</label>
         <input type="text" name="occupation" class="form-control"
                value="{{ agent.occupation if agent else '' }}">
