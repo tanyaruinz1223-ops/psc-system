@@ -4,6 +4,7 @@ from flask import (Flask, render_template, request, redirect,
 from functools import wraps
 from datetime import datetime
 import db
+import email_utils
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "psc-dev-secret-2024")
@@ -237,8 +238,10 @@ def agent_edit(agent_id):
 @role_required("admin")
 def agent_approve(agent_id):
     num, username, default_password = db.approve_agent(agent_id)
+    agent = db.get_agent(agent_id)
     if username:
-        flash(f"Agent approved! Number: {num} | Login: {username} | Password: {default_password} — share this with the agent.", "success")
+        email_utils.send_agent_approved(agent, username, default_password)
+        flash(f"Agent approved! Number: {num} | Login: {username} | Password: {default_password} — credentials emailed to agent.", "success")
     else:
         flash(f"Agent approved! Agent Number: {num} (portal login already exists)", "success")
     return redirect(url_for("agent_detail", agent_id=agent_id))
@@ -248,8 +251,10 @@ def agent_approve(agent_id):
 @role_required("admin")
 def agent_reject(agent_id):
     notes = request.form.get("notes", "").strip()
+    agent = db.get_agent(agent_id)
     db.reject_agent(agent_id, notes)
-    flash("Agent application rejected.", "success")
+    email_utils.send_agent_rejected(agent, notes)
+    flash("Agent application rejected and notified by email.", "success")
     return redirect(url_for("agent_detail", agent_id=agent_id))
 
 
@@ -325,6 +330,12 @@ def lead_update_status(lead_id):
     status = request.form.get("status", "")
     if status in STATUS_FLOW:
         db.update_lead_status(lead_id, status)
+        lead = db.get_lead(lead_id)
+        agent = db.get_agent(lead["agent_id"]) if lead else None
+        if agent and agent.get("email"):
+            email_utils.send_lead_status_update(
+                agent["email"], agent["full_name"],
+                lead["lead_number"], status)
         flash(f"Status updated to: {status}", "success")
     return redirect(url_for("lead_detail", lead_id=lead_id))
 
@@ -385,7 +396,13 @@ def commission_detail(commission_id):
 @role_required("admin", "finance")
 def commission_approve(commission_id):
     db.approve_commission(commission_id)
-    flash("Commission approved.", "success")
+    c = db.get_commission(commission_id)
+    agent = db.get_agent(c["agent_id"]) if c else None
+    if agent and agent.get("email"):
+        email_utils.send_commission_approved(
+            agent["email"], agent["full_name"],
+            c["commission_ref"], float(c["net_commission"]))
+    flash("Commission approved and agent notified by email.", "success")
     return redirect(url_for("commission_detail", commission_id=commission_id))
 
 
@@ -394,7 +411,13 @@ def commission_approve(commission_id):
 def commission_pay(commission_id):
     method = request.form.get("payment_method", "Bank Transfer")
     db.pay_commission(commission_id, method)
-    flash(f"Commission marked as paid via {method}.", "success")
+    c = db.get_commission(commission_id)
+    agent = db.get_agent(c["agent_id"]) if c else None
+    if agent and agent.get("email"):
+        email_utils.send_commission_paid(
+            agent["email"], agent["full_name"],
+            c["commission_ref"], float(c["net_commission"]), method)
+    flash(f"Commission paid via {method} — agent notified by email.", "success")
     return redirect(url_for("commission_detail", commission_id=commission_id))
 
 
